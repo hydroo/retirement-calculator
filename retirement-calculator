@@ -4,7 +4,7 @@ import argparse
 import datetime
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--starting-funds"         , type=float, metavar="<USD>"  )
+parser.add_argument("--initial-savings"        , type=float, metavar="<USD>"  )
 parser.add_argument("--interest"               , type=float, metavar="<ratio>")
 parser.add_argument("--inflation"              , type=float, metavar="<ratio>")
 parser.add_argument("--working"                , type=float, metavar="<years>")
@@ -33,13 +33,13 @@ Interest:
 ''')
     args.interest = .07
 
-if args.starting_funds == None:
+if args.initial_savings == None:
     print( \
 '''\
-Starting funds:
+Initial savings:
   Let's assume $0
 ''')
-    args.starting_funds = .0
+    args.initial_savings = .0
 
 if args.inflation == None:
     print( \
@@ -103,7 +103,7 @@ Capital gain tax:
 
 currentyear = datetime.date.today().year
 
-starting_funds          = args.starting_funds
+initial_savings         = args.initial_savings
 working                 = args.working
 interest                = args.interest
 inflation               = args.inflation
@@ -114,27 +114,27 @@ retired_yearly_withdraw = args.retired_yearly_withdraw
 capital_gains           = args.capital_gains
 verbose                 = args.verbose
 
-funds=starting_funds
+savings=initial_savings
 for year in range(1, working+1):
-    return_before_tax = funds*(interest - inflation)
+    return_before_tax = savings*(interest - inflation)
     return_after_tax = return_before_tax * (1 - capital_gains)
-    funds += return_after_tax
-    funds += working_yearly_savings
+    savings += return_after_tax
+    savings += working_yearly_savings
 
     if verbose:
-        print("Year: %04d, Funds: $%9.0f, Return before tax: $ %8.0f, Capital gain tax: $ %7.0f, Return after tax %8.0f" % (currentyear + year, funds, return_before_tax, return_before_tax*capital_gains, return_after_tax))
+        print("Year: %04d, Savings: $%9.0f, Return before tax: $ %7.0f, Capital gain tax: $ %6.0f, Return after tax: $ %7.0f" % (currentyear + year, savings, return_before_tax, return_before_tax*capital_gains, return_after_tax))
     else:
-        print("Year: %04d, Funds: $%9.0f" % (currentyear + year, funds))
+        print("Year: %04d, Savings: $%9.0f" % (currentyear + year, savings))
 
 print("Retirement start:")
 
 for year in range(1, retired+1):
-    funds -= retired_yearly_withdraw
-    return_before_tax = funds * (interest - inflation)
+    savings -= retired_yearly_withdraw
+    return_before_tax = savings * (interest - inflation)
     return_after_tax = return_before_tax * (1 - capital_gains)
-    funds += return_before_tax
+    savings += return_before_tax
 
     if verbose:
-        print("Year: %04d, Funds: $%9.0f, Return before tax: $ %8.0f, Capital gain tax: $ %7.0f, Return after tax %8.0f" % (currentyear + working + year, funds, return_before_tax, return_before_tax*capital_gains, return_after_tax))
+        print("Year: %04d, Savings: $%9.0f, Return before tax: $ %7.0f, Capital gain tax: $ %6.0f, Return after tax: $ %7.0f" % (currentyear + working + year, savings, return_before_tax, return_before_tax*capital_gains, return_after_tax))
     else:
-        print("year: %04d, Funds: $%9.0f" % (currentyear + working + year, funds))
+        print("year: %04d, Savings: $%9.0f" % (currentyear + working + year, savings))
