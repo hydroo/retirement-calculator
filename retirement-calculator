@@ -1,0 +1,131 @@
+#! /usr/bin/env python3
+
+import argparse
+import datetime
+
+parser = argparse.ArgumentParser()
+parser.add_argument("--interest"               , type=float, metavar="<ratio>")
+parser.add_argument("--inflation"              , type=float, metavar="<ratio>")
+parser.add_argument("--working"                , type=float, metavar="<years>")
+parser.add_argument("--retired"                , type=float, metavar="<years>")
+parser.add_argument("--working-yearly-savings" , type=float, metavar="<USD>"  )
+parser.add_argument("--retired-yearly-withdraw", type=float, metavar="<USD>"  )
+parser.add_argument("--capital-gains"          , type=float, metavar="<ratio>")
+parser.add_argument("--verbose"                , action="store_true")
+
+args = parser.parse_args()
+
+if args.interest == None:
+    print( \
+'''\
+Interest:
+  Average yearly return on the S&P 500 from 1928 to 2017 is .114
+  Average 1990-2017 is .111
+  Average 2000-2017 is .068
+  Refer to e.g. https://inflationdata.com/Inflation/Inflation/DecadeInflation.asp
+
+  Source: https://seekingalpha.com/instablog/605212-robert-allan-schwartz/4831186-annual-returns-s-and-p-500-1928-2015
+          https://www.google.com/search?q=s%26p+2016+return&oq=s%26p+2016+return
+          https://dqydj.com/2017-sp-500-return/
+
+  Let's assume .07
+''')
+    args.interest = .07
+
+
+if args.inflation == None:
+    print( \
+'''\
+Inflation:
+  Average yearly inflation from 1914 to 2017 in the USA is .0318
+  Average 1990-2017 is .025
+
+  Source: https://inflationdata.com/Inflation/Inflation/DecadeInflation.asp
+
+  Let's assume .03
+''')
+    args.inflation = .03
+
+if args.working == None:
+    print( \
+'''\
+Working years:
+  Let's assume 35
+''')
+    args.working = 35
+
+if args.retired == None:
+    print( \
+'''\
+Years in retirement:
+  Let's assume 30
+''')
+    args.retired = 30
+
+if args.working_yearly_savings == None:
+    print( \
+'''\
+Working yearly savings:
+  Let's assume $6000
+''')
+    args.working_yearly_savings = 6000.0
+
+if args.retired_yearly_withdraw == None:
+    print( \
+'''\
+Retired yearly withdraw:
+  Let's assume $24000
+''')
+    args.retired_yearly_withdraw = 24000.0
+
+if args.capital_gains == None:
+    print( \
+'''\
+Capital gain tax:
+
+  Single Income: $0–$38,600       Capital gain tax: .0
+  Single Income: $38,601–$425,800 Capital gain tax: .15
+  Single Income: Over $425,800    Capital gain tax: .20
+
+  Source: https://en.wikipedia.org/wiki/Capital_gains_tax_in_the_United_States
+
+  Let's assume .0
+''')
+    args.capital_gains = .0
+
+currentyear = datetime.date.today().year
+
+working                 = args.working
+interest                = args.interest
+inflation               = args.inflation
+working                 = args.working
+retired                 = args.retired
+working_yearly_savings  = args.working_yearly_savings
+retired_yearly_withdraw = args.retired_yearly_withdraw
+capital_gains           = args.capital_gains
+verbose                 = args.verbose
+
+funds=0.0
+for year in range(1, working+1):
+    funds += working_yearly_savings
+    return_before_tax = funds*(interest - inflation)
+    return_after_tax = return_before_tax * (1 - capital_gains)
+    funds += return_after_tax
+
+    if verbose:
+        print("Year: %04d, Funds: $%9.0f, Return before tax: $ %8.0f, Capital gain tax: $ %7.0f, Return after tax %8.0f" % (currentyear + year, funds, return_before_tax, return_before_tax*capital_gains, return_after_tax))
+    else:
+        print("Year: %04d, Funds: $%9.0f" % (currentyear + year, funds))
+
+print("Retirement start:")
+
+for year in range(1, retired+1):
+    funds -= retired_yearly_withdraw
+    return_before_tax = funds * (interest - inflation)
+    return_after_tax = return_before_tax * (1 - capital_gains)
+    funds += return_before_tax
+
+    if verbose:
+        print("Year: %04d, Funds: $%9.0f, Return before tax: $ %8.0f, Capital gain tax: $ %7.0f, Return after tax %8.0f" % (currentyear + working + year, funds, return_before_tax, return_before_tax*capital_gains, return_after_tax))
+    else:
+        print("year: %04d, Funds: $%9.0f" % (currentyear + working + year, funds))
