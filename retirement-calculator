@@ -4,6 +4,7 @@ import argparse
 import datetime
 
 parser = argparse.ArgumentParser()
+parser.add_argument("--starting-funds"         , type=float, metavar="<USD>"  )
 parser.add_argument("--interest"               , type=float, metavar="<ratio>")
 parser.add_argument("--inflation"              , type=float, metavar="<ratio>")
 parser.add_argument("--working"                , type=float, metavar="<years>")
@@ -32,6 +33,13 @@ Interest:
 ''')
     args.interest = .07
 
+if args.starting_funds == None:
+    print( \
+'''\
+Starting funds:
+  Let's assume $0
+''')
+    args.starting_funds = .0
 
 if args.inflation == None:
     print( \
@@ -95,6 +103,7 @@ Capital gain tax:
 
 currentyear = datetime.date.today().year
 
+starting_funds          = args.starting_funds
 working                 = args.working
 interest                = args.interest
 inflation               = args.inflation
@@ -105,7 +114,7 @@ retired_yearly_withdraw = args.retired_yearly_withdraw
 capital_gains           = args.capital_gains
 verbose                 = args.verbose
 
-funds=0.0
+funds=starting_funds
 for year in range(1, working+1):
     funds += working_yearly_savings
     return_before_tax = funds*(interest - inflation)
