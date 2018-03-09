@@ -132,7 +132,7 @@ for year in range(1, retired+1):
     savings -= retired_yearly_withdraw
     return_before_tax = savings * (interest - inflation)
     return_after_tax = return_before_tax * (1 - capital_gains)
-    savings += return_before_tax
+    savings += return_after_tax
 
     if verbose:
         print("Year: %04d, Savings: $%9.0f, Return before tax: $ %7.0f, Capital gain tax: $ %6.0f, Return after tax: $ %7.0f" % (currentyear + working + year, savings, return_before_tax, return_before_tax*capital_gains, return_after_tax))
