@@ -5,7 +5,8 @@ import datetime
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--initial-savings"        , type=float, metavar="<USD>"  )
-parser.add_argument("--interest"               , type=float, metavar="<ratio>")
+parser.add_argument("--interest-working"       , type=float, metavar="<ratio>")
+parser.add_argument("--interest-retired"       , type=float, metavar="<ratio>")
 parser.add_argument("--inflation"              , type=float, metavar="<ratio>")
 parser.add_argument("--working"                , type=float, metavar="<years>")
 parser.add_argument("--retired"                , type=float, metavar="<years>")
@@ -16,10 +17,18 @@ parser.add_argument("--verbose"                , action="store_true")
 
 args = parser.parse_args()
 
-if args.interest == None:
+if args.initial_savings == None:
     print( \
 '''\
-Interest:
+Initial savings:
+  Let's assume $0
+''')
+    args.initial_savings = .0
+
+if args.interest_working == None:
+    print( \
+'''\
+Interest working:
   Average yearly return on the S&P 500 from 1928 to 2017 is .114
   Average 1990-2017 is .111
   Average 2000-2017 is .068
@@ -30,15 +39,24 @@ Interest:
 
   Let's assume .07
 ''')
-    args.interest = .07
+    args.interest_working = .07
 
-if args.initial_savings == None:
+if args.interest_retired == None:
     print( \
 '''\
-Initial savings:
-  Let's assume $0
+Interest retired:
+  Average yearly return on (3mo T-Bills, 10y T-Bonds) from 1928 to 2017 is (.0344, .0515)
+  Average 1990-2017 is (.0279, .0637)
+  Average 2000-2017 is (.0166, .0556)
+
+  Bloomberg Barclays US Aggregate Bond TR USD average yearly return 2003-2017: .0388
+
+  Source: http://pages.stern.nyu.edu/~adamodar/New_Home_Page/datafile/histretSP.html
+          http://performance.morningstar.com/Performance/index-c/performance-return.action?t=XIUSA000MC
+
+  Let's assume .05
 ''')
-    args.initial_savings = .0
+    args.interest_retired = .05
 
 if args.inflation == None:
     print( \
@@ -104,7 +122,8 @@ currentyear = datetime.date.today().year
 
 initial_savings         = args.initial_savings
 working                 = args.working
-interest                = args.interest
+interest_working        = args.interest_working
+interest_retired        = args.interest_retired
 inflation               = args.inflation
 working                 = args.working
 retired                 = args.retired
@@ -115,7 +134,7 @@ verbose                 = args.verbose
 
 savings=initial_savings
 for year in range(1, working+1):
-    return_before_tax = savings*interest
+    return_before_tax = savings*interest_working
     return_after_tax = return_before_tax * (1 - capital_gains)
     savings += return_after_tax
     savings += working_yearly_savings
@@ -130,7 +149,7 @@ print("Retirement start:")
 
 for year in range(1, retired+1):
     savings -= retired_yearly_withdraw
-    return_before_tax = savings * interest
+    return_before_tax = savings * interest_retired
     return_after_tax = return_before_tax * (1 - capital_gains)
     savings += return_after_tax
     savings *= (1-inflation)
